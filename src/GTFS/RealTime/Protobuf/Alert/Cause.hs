@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.Alert.Cause (Cause(..)) where
 import Prelude ((+), (/), (.))
@@ -111,7 +111,45 @@ instance P'.ReflectEnum Cause where
       ["GTFS", "RealTime", "Protobuf", "Alert", "Cause.hs"]
       [(1, "UNKNOWN_CAUSE"), (2, "OTHER_CAUSE"), (3, "TECHNICAL_PROBLEM"), (4, "STRIKE"), (5, "DEMONSTRATION"), (6, "ACCIDENT"),
        (7, "HOLIDAY"), (8, "WEATHER"), (9, "MAINTENANCE"), (10, "CONSTRUCTION"), (11, "POLICE_ACTIVITY"), (12, "MEDICAL_EMERGENCY")]
+      Prelude'.True
 
 instance P'.TextType Cause where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON Cause where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         UNKNOWN_CAUSE -> "UNKNOWN_CAUSE"
+         OTHER_CAUSE -> "OTHER_CAUSE"
+         TECHNICAL_PROBLEM -> "TECHNICAL_PROBLEM"
+         STRIKE -> "STRIKE"
+         DEMONSTRATION -> "DEMONSTRATION"
+         ACCIDENT -> "ACCIDENT"
+         HOLIDAY -> "HOLIDAY"
+         WEATHER -> "WEATHER"
+         MAINTENANCE -> "MAINTENANCE"
+         CONSTRUCTION -> "CONSTRUCTION"
+         POLICE_ACTIVITY -> "POLICE_ACTIVITY"
+         MEDICAL_EMERGENCY -> "MEDICAL_EMERGENCY")
+
+instance P'.FromJSON Cause where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.Alert.Cause.Cause"
+      (\ msg' ->
+        case msg' of
+          "UNKNOWN_CAUSE" -> Prelude'.return UNKNOWN_CAUSE
+          "OTHER_CAUSE" -> Prelude'.return OTHER_CAUSE
+          "TECHNICAL_PROBLEM" -> Prelude'.return TECHNICAL_PROBLEM
+          "STRIKE" -> Prelude'.return STRIKE
+          "DEMONSTRATION" -> Prelude'.return DEMONSTRATION
+          "ACCIDENT" -> Prelude'.return ACCIDENT
+          "HOLIDAY" -> Prelude'.return HOLIDAY
+          "WEATHER" -> Prelude'.return WEATHER
+          "MAINTENANCE" -> Prelude'.return MAINTENANCE
+          "CONSTRUCTION" -> Prelude'.return CONSTRUCTION
+          "POLICE_ACTIVITY" -> Prelude'.return POLICE_ACTIVITY
+          "MEDICAL_EMERGENCY" -> Prelude'.return MEDICAL_EMERGENCY
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++ " for enum GTFS.RealTime.Protobuf.Alert.Cause.Cause"))

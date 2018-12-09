@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.Alert.Effect (Effect(..)) where
 import Prelude ((+), (/), (.))
@@ -95,7 +95,40 @@ instance P'.ReflectEnum Effect where
       ["GTFS", "RealTime", "Protobuf", "Alert", "Effect.hs"]
       [(1, "NO_SERVICE"), (2, "REDUCED_SERVICE"), (3, "SIGNIFICANT_DELAYS"), (4, "DETOUR"), (5, "ADDITIONAL_SERVICE"),
        (6, "MODIFIED_SERVICE"), (7, "OTHER_EFFECT"), (8, "UNKNOWN_EFFECT"), (9, "STOP_MOVED")]
+      Prelude'.True
 
 instance P'.TextType Effect where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON Effect where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         NO_SERVICE -> "NO_SERVICE"
+         REDUCED_SERVICE -> "REDUCED_SERVICE"
+         SIGNIFICANT_DELAYS -> "SIGNIFICANT_DELAYS"
+         DETOUR -> "DETOUR"
+         ADDITIONAL_SERVICE -> "ADDITIONAL_SERVICE"
+         MODIFIED_SERVICE -> "MODIFIED_SERVICE"
+         OTHER_EFFECT -> "OTHER_EFFECT"
+         UNKNOWN_EFFECT -> "UNKNOWN_EFFECT"
+         STOP_MOVED -> "STOP_MOVED")
+
+instance P'.FromJSON Effect where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.Alert.Effect.Effect"
+      (\ msg' ->
+        case msg' of
+          "NO_SERVICE" -> Prelude'.return NO_SERVICE
+          "REDUCED_SERVICE" -> Prelude'.return REDUCED_SERVICE
+          "SIGNIFICANT_DELAYS" -> Prelude'.return SIGNIFICANT_DELAYS
+          "DETOUR" -> Prelude'.return DETOUR
+          "ADDITIONAL_SERVICE" -> Prelude'.return ADDITIONAL_SERVICE
+          "MODIFIED_SERVICE" -> Prelude'.return MODIFIED_SERVICE
+          "OTHER_EFFECT" -> Prelude'.return OTHER_EFFECT
+          "UNKNOWN_EFFECT" -> Prelude'.return UNKNOWN_EFFECT
+          "STOP_MOVED" -> Prelude'.return STOP_MOVED
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.Alert.Effect.Effect"))

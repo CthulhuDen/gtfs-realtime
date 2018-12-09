@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.TripDescriptor.ScheduleRelationship (ScheduleRelationship(..)) where
 import Prelude ((+), (/), (.))
@@ -71,7 +71,30 @@ instance P'.ReflectEnum ScheduleRelationship where
         "ScheduleRelationship")
       ["GTFS", "RealTime", "Protobuf", "TripDescriptor", "ScheduleRelationship.hs"]
       [(0, "SCHEDULED"), (1, "ADDED"), (2, "UNSCHEDULED"), (3, "CANCELED")]
+      Prelude'.True
 
 instance P'.TextType ScheduleRelationship where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON ScheduleRelationship where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         SCHEDULED -> "SCHEDULED"
+         ADDED -> "ADDED"
+         UNSCHEDULED -> "UNSCHEDULED"
+         CANCELED -> "CANCELED")
+
+instance P'.FromJSON ScheduleRelationship where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.TripDescriptor.ScheduleRelationship.ScheduleRelationship"
+      (\ msg' ->
+        case msg' of
+          "SCHEDULED" -> Prelude'.return SCHEDULED
+          "ADDED" -> Prelude'.return ADDED
+          "UNSCHEDULED" -> Prelude'.return UNSCHEDULED
+          "CANCELED" -> Prelude'.return CANCELED
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.TripDescriptor.ScheduleRelationship.ScheduleRelationship"))

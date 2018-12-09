@@ -1,7 +1,7 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.FeedHeader (FeedHeader(..)) where
-import Prelude ((+), (/), (==), (<=), (&&))
+import Prelude ((+), (/), (++), (.), (==), (<=), (&&))
 import qualified Prelude as Prelude'
 import qualified Data.Typeable as Prelude'
 import qualified GHC.Generics as Prelude'
@@ -18,6 +18,27 @@ instance P'.ExtendMessage FeedHeader where
   getExtField = ext'field
   putExtField e'f msg = msg{ext'field = e'f}
   validExtRanges msg = P'.extRanges (P'.reflectDescriptorInfo msg)
+
+instance P'.ToJSON FeedHeader where
+  toJSON msg
+   = P'.objectNoEmpty
+      ([("gtfs_realtime_version", P'.toJSON (gtfs_realtime_version msg)),
+        ("incrementality", P'.toJSON (Prelude'.fmap P'.toJSON (incrementality msg))),
+        ("timestamp", P'.toJSON (Prelude'.fmap P'.toJSONShowWithPayload (timestamp msg)))]
+        ++ Prelude'.concat [])
+
+instance P'.FromJSON FeedHeader where
+  parseJSON
+   = P'.withObject "FeedHeader"
+      (\ o ->
+        do
+          gtfs_realtime_version <- P'.explicitParseField P'.parseJSON o "gtfs_realtime_version"
+          incrementality <- do
+                              tmp <- P'.explicitParseFieldMaybe P'.parseJSON o "incrementality"
+                              Prelude'.return (Prelude'.maybe (Prelude'.Just ((Prelude'.read "FULL_DATASET"))) Prelude'.Just tmp)
+          timestamp <- P'.explicitParseFieldMaybe (P'.parseJSONReadWithPayload "uint64") o "timestamp"
+          Prelude'.return
+           P'.defaultValue{gtfs_realtime_version = gtfs_realtime_version, incrementality = incrementality, timestamp = timestamp})
 
 instance P'.Mergeable FeedHeader where
   mergeAppend (FeedHeader x'1 x'2 x'3 x'4) (FeedHeader y'1 y'2 y'3 y'4)
@@ -53,8 +74,8 @@ instance P'.Wire FeedHeader where
             in P'.sequencePutWithSize [put'Size, put'Fields]
   wireGet ft'
    = case ft' of
-       10 -> P'.getBareMessageWith update'Self
-       11 -> P'.getMessageWith update'Self
+       10 -> P'.getBareMessageWith (P'.catch'Unknown' P'.discardUnknown update'Self)
+       11 -> P'.getMessageWith (P'.catch'Unknown' P'.discardUnknown update'Self)
        _ -> P'.wireGetErr ft'
     where
         update'Self wire'Tag old'Self
@@ -75,7 +96,7 @@ instance P'.ReflectDescriptor FeedHeader where
   getMessageInfo _ = P'.GetMessageInfo (P'.fromDistinctAscList [10]) (P'.fromDistinctAscList [10, 16, 24])
   reflectDescriptorInfo _
    = Prelude'.read
-      "DescriptorInfo {descName = ProtoName {protobufName = FIName \".transit_realtime.FeedHeader\", haskellPrefix = [], parentModule = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\"], baseName = MName \"FeedHeader\"}, descFilePath = [\"GTFS\",\"RealTime\",\"Protobuf\",\"FeedHeader.hs\"], isGroup = False, fields = fromList [FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.gtfs_realtime_version\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"gtfs_realtime_version\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 1}, wireTag = WireTag {getWireTag = 10}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = True, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 9}, typeName = Nothing, hsRawDefault = Nothing, hsDefault = Nothing},FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.incrementality\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"incrementality\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 2}, wireTag = WireTag {getWireTag = 16}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = False, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 14}, typeName = Just (ProtoName {protobufName = FIName \".transit_realtime.FeedHeader.Incrementality\", haskellPrefix = [], parentModule = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName = MName \"Incrementality\"}), hsRawDefault = Just \"FULL_DATASET\", hsDefault = Just (HsDef'Enum \"FULL_DATASET\")},FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.timestamp\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"timestamp\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 3}, wireTag = WireTag {getWireTag = 24}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = False, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 4}, typeName = Nothing, hsRawDefault = Nothing, hsDefault = Nothing}], descOneofs = fromList [], keys = fromList [], extRanges = [(FieldId {getFieldId = 1000},FieldId {getFieldId = 1999})], knownKeys = fromList [], storeUnknown = False, lazyFields = False, makeLenses = False}"
+      "DescriptorInfo {descName = ProtoName {protobufName = FIName \".transit_realtime.FeedHeader\", haskellPrefix = [], parentModule = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\"], baseName = MName \"FeedHeader\"}, descFilePath = [\"GTFS\",\"RealTime\",\"Protobuf\",\"FeedHeader.hs\"], isGroup = False, fields = fromList [FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.gtfs_realtime_version\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"gtfs_realtime_version\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 1}, wireTag = WireTag {getWireTag = 10}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = True, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 9}, typeName = Nothing, hsRawDefault = Nothing, hsDefault = Nothing},FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.incrementality\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"incrementality\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 2}, wireTag = WireTag {getWireTag = 16}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = False, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 14}, typeName = Just (ProtoName {protobufName = FIName \".transit_realtime.FeedHeader.Incrementality\", haskellPrefix = [], parentModule = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName = MName \"Incrementality\"}), hsRawDefault = Just \"FULL_DATASET\", hsDefault = Just (HsDef'Enum \"FULL_DATASET\")},FieldInfo {fieldName = ProtoFName {protobufName' = FIName \".transit_realtime.FeedHeader.timestamp\", haskellPrefix' = [], parentModule' = [MName \"GTFS\",MName \"RealTime\",MName \"Protobuf\",MName \"FeedHeader\"], baseName' = FName \"timestamp\", baseNamePrefix' = \"\"}, fieldNumber = FieldId {getFieldId = 3}, wireTag = WireTag {getWireTag = 24}, packedTag = Nothing, wireTagLength = 1, isPacked = False, isRequired = False, canRepeat = False, mightPack = False, typeCode = FieldType {getFieldType = 4}, typeName = Nothing, hsRawDefault = Nothing, hsDefault = Nothing}], descOneofs = fromList [], keys = fromList [], extRanges = [(FieldId {getFieldId = 1000},FieldId {getFieldId = 1999})], knownKeys = fromList [], storeUnknown = False, lazyFields = False, makeLenses = False, jsonInstances = True}"
 
 instance P'.TextType FeedHeader where
   tellT = P'.tellSubMessage

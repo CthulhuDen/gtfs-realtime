@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.VehiclePosition.CongestionLevel (CongestionLevel(..)) where
 import Prelude ((+), (/), (.))
@@ -78,7 +78,32 @@ instance P'.ReflectEnum CongestionLevel where
         "CongestionLevel")
       ["GTFS", "RealTime", "Protobuf", "VehiclePosition", "CongestionLevel.hs"]
       [(0, "UNKNOWN_CONGESTION_LEVEL"), (1, "RUNNING_SMOOTHLY"), (2, "STOP_AND_GO"), (3, "CONGESTION"), (4, "SEVERE_CONGESTION")]
+      Prelude'.True
 
 instance P'.TextType CongestionLevel where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON CongestionLevel where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         UNKNOWN_CONGESTION_LEVEL -> "UNKNOWN_CONGESTION_LEVEL"
+         RUNNING_SMOOTHLY -> "RUNNING_SMOOTHLY"
+         STOP_AND_GO -> "STOP_AND_GO"
+         CONGESTION -> "CONGESTION"
+         SEVERE_CONGESTION -> "SEVERE_CONGESTION")
+
+instance P'.FromJSON CongestionLevel where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.VehiclePosition.CongestionLevel.CongestionLevel"
+      (\ msg' ->
+        case msg' of
+          "UNKNOWN_CONGESTION_LEVEL" -> Prelude'.return UNKNOWN_CONGESTION_LEVEL
+          "RUNNING_SMOOTHLY" -> Prelude'.return RUNNING_SMOOTHLY
+          "STOP_AND_GO" -> Prelude'.return STOP_AND_GO
+          "CONGESTION" -> Prelude'.return CONGESTION
+          "SEVERE_CONGESTION" -> Prelude'.return SEVERE_CONGESTION
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.VehiclePosition.CongestionLevel.CongestionLevel"))

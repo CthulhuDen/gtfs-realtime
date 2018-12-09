@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.FeedHeader.Incrementality (Incrementality(..)) where
 import Prelude ((+), (/), (.))
@@ -60,7 +60,26 @@ instance P'.ReflectEnum Incrementality where
         "Incrementality")
       ["GTFS", "RealTime", "Protobuf", "FeedHeader", "Incrementality.hs"]
       [(0, "FULL_DATASET"), (1, "DIFFERENTIAL")]
+      Prelude'.True
 
 instance P'.TextType Incrementality where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON Incrementality where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         FULL_DATASET -> "FULL_DATASET"
+         DIFFERENTIAL -> "DIFFERENTIAL")
+
+instance P'.FromJSON Incrementality where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.FeedHeader.Incrementality.Incrementality"
+      (\ msg' ->
+        case msg' of
+          "FULL_DATASET" -> Prelude'.return FULL_DATASET
+          "DIFFERENTIAL" -> Prelude'.return DIFFERENTIAL
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.FeedHeader.Incrementality.Incrementality"))

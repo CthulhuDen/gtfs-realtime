@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.VehiclePosition.OccupancyStatus (OccupancyStatus(..)) where
 import Prelude ((+), (/), (.))
@@ -90,7 +90,36 @@ instance P'.ReflectEnum OccupancyStatus where
       ["GTFS", "RealTime", "Protobuf", "VehiclePosition", "OccupancyStatus.hs"]
       [(0, "EMPTY"), (1, "MANY_SEATS_AVAILABLE"), (2, "FEW_SEATS_AVAILABLE"), (3, "STANDING_ROOM_ONLY"),
        (4, "CRUSHED_STANDING_ROOM_ONLY"), (5, "FULL"), (6, "NOT_ACCEPTING_PASSENGERS")]
+      Prelude'.True
 
 instance P'.TextType OccupancyStatus where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON OccupancyStatus where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         EMPTY -> "EMPTY"
+         MANY_SEATS_AVAILABLE -> "MANY_SEATS_AVAILABLE"
+         FEW_SEATS_AVAILABLE -> "FEW_SEATS_AVAILABLE"
+         STANDING_ROOM_ONLY -> "STANDING_ROOM_ONLY"
+         CRUSHED_STANDING_ROOM_ONLY -> "CRUSHED_STANDING_ROOM_ONLY"
+         FULL -> "FULL"
+         NOT_ACCEPTING_PASSENGERS -> "NOT_ACCEPTING_PASSENGERS")
+
+instance P'.FromJSON OccupancyStatus where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.VehiclePosition.OccupancyStatus.OccupancyStatus"
+      (\ msg' ->
+        case msg' of
+          "EMPTY" -> Prelude'.return EMPTY
+          "MANY_SEATS_AVAILABLE" -> Prelude'.return MANY_SEATS_AVAILABLE
+          "FEW_SEATS_AVAILABLE" -> Prelude'.return FEW_SEATS_AVAILABLE
+          "STANDING_ROOM_ONLY" -> Prelude'.return STANDING_ROOM_ONLY
+          "CRUSHED_STANDING_ROOM_ONLY" -> Prelude'.return CRUSHED_STANDING_ROOM_ONLY
+          "FULL" -> Prelude'.return FULL
+          "NOT_ACCEPTING_PASSENGERS" -> Prelude'.return NOT_ACCEPTING_PASSENGERS
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.VehiclePosition.OccupancyStatus.OccupancyStatus"))

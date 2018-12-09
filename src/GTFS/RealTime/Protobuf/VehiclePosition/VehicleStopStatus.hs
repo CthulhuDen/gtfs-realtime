@@ -1,4 +1,4 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# OPTIONS_GHC  -fno-warn-unused-imports #-}
 module GTFS.RealTime.Protobuf.VehiclePosition.VehicleStopStatus (VehicleStopStatus(..)) where
 import Prelude ((+), (/), (.))
@@ -66,7 +66,28 @@ instance P'.ReflectEnum VehicleStopStatus where
         "VehicleStopStatus")
       ["GTFS", "RealTime", "Protobuf", "VehiclePosition", "VehicleStopStatus.hs"]
       [(0, "INCOMING_AT"), (1, "STOPPED_AT"), (2, "IN_TRANSIT_TO")]
+      Prelude'.True
 
 instance P'.TextType VehicleStopStatus where
   tellT = P'.tellShow
   getT = P'.getRead
+
+instance P'.ToJSON VehicleStopStatus where
+  toJSON msg'
+   = P'.String
+      (case msg' of
+         INCOMING_AT -> "INCOMING_AT"
+         STOPPED_AT -> "STOPPED_AT"
+         IN_TRANSIT_TO -> "IN_TRANSIT_TO")
+
+instance P'.FromJSON VehicleStopStatus where
+  parseJSON
+   = P'.withText "GTFS.RealTime.Protobuf.VehiclePosition.VehicleStopStatus.VehicleStopStatus"
+      (\ msg' ->
+        case msg' of
+          "INCOMING_AT" -> Prelude'.return INCOMING_AT
+          "STOPPED_AT" -> Prelude'.return STOPPED_AT
+          "IN_TRANSIT_TO" -> Prelude'.return IN_TRANSIT_TO
+          _ -> Prelude'.fail
+                ("Invalid value " Prelude'.++ Prelude'.show msg' Prelude'.++
+                  " for enum GTFS.RealTime.Protobuf.VehiclePosition.VehicleStopStatus.VehicleStopStatus"))
