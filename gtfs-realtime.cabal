@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3cb08b34c641e4f439aac45252f7985223f1d489b15209a486c5dfd43a01dd86
+-- hash: f71710f4525eb582d9d3ba829afd5ce6f5c5eb22c9d36389332860c338080420
 
 name:           gtfs-realtime
 version:        0.1.0.0
@@ -59,6 +59,6 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
-    , protocol-buffers >=2.4.11 && <3
-    , protocol-buffers-descriptor >=2.4.11 && <3
+    , protocol-buffers >=2.4.11 && <2.4.12
+    , protocol-buffers-descriptor >=2.4.11 && <2.4.12
   default-language: Haskell2010
